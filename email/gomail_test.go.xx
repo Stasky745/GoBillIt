@@ -1,0 +1,32 @@
+package email
+
+var ()
+
+// func TestSendMail(t *testing.T) {
+// 	emailFrom := os.Getenv("EMAIL_FROM")
+// 	emailTo := os.Getenv("EMAIL_TO")
+
+// 	smtpServer := os.Getenv("SMTP_SERVER")
+// 	smtpPort := 587
+// 	smtpUsername := os.Getenv("SMTP_USERNAME")
+// 	smtpPassword := os.Getenv("SMTP_PASSWORD")
+
+// 	email := Email{
+// 		From: emailFrom,
+// 		To:   emailTo,
+
+// 		SmtpServer:   smtpServer,
+// 		SmtpPort:     smtpPort,
+// 		SmtpUsername: smtpUsername,
+// 		SmtpPassword: smtpPassword,
+
+// 		Subject:    "Test Subject",
+// 		Body:       "Test Body",
+// 		Attachment: "./test/Lorem_ipsum.pdf",
+// 	}
+
+// 	err := SendEmail(email)
+// 	if err != nil {
+// 		t.Errorf("Can't send the email: %s", err)
+// 	}
+// }
