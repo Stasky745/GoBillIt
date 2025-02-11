@@ -1,9 +1,7 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -13,73 +11,13 @@ import (
 	"github.com/Stasky745/invoice-generator/utils"
 )
 
-var (
-	invgenApiKey    string
-	invTo           string
-	invFrom         string
-	invNumberPrefix string
-	invBankAcc      string
-	invAmount       string
-
-	companyName string
-
-	emailFrom string
-	emailTo   string
-
-	smtpServer   string
-	smtpPort     int
-	smtpUsername string
-	smtpPassword string
-
-	apiLayerApiKey   string
-	apiLayerBaseCurr string
-	apiLayerNewCurr  string
-
-	pdfPrefix string
-
-	conversionRate string
-)
-
-func getArgs() {
-	flag.StringVar(&invgenApiKey, "invgenApiKey", os.Getenv("INVGEN_API_KEY"), "API key for invoice-generator.com")
-	flag.StringVar(&invTo, "invTo", os.Getenv("INV_TO"), "\"Bill To\" part of the invoice.")
-	flag.StringVar(&invFrom, "invFrom", os.Getenv("INV_FROM"), "API key for invoice-generator.com")
-	flag.StringVar(&invNumberPrefix, "invNumberPrefix", os.Getenv("INV_NUMBER_PREFIX"), "Invoice number.")
-	flag.StringVar(&invBankAcc, "invBankAcc", os.Getenv("INV_BANK_ACCOUNT"), "The bank account it has to be paid to.")
-	flag.StringVar(&invAmount, "invAmount", os.Getenv("INV_AMOUNT"), "The amount to bill.")
-
-	flag.StringVar(&companyName, "companyName", os.Getenv("COMPANY_NAME"), "Name of the company being invoiced.")
-
-	flag.StringVar(&smtpServer, "smtpServer", os.Getenv("SMTP_SERVER"), "SMTP Server to be used.")
-	smtpPortEnv, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	if err != nil {
-		smtpPortEnv = 1
-	}
-	flag.IntVar(&smtpPort, "smtpPort", smtpPortEnv, "SMTP Port to be used.")
-	flag.StringVar(&smtpUsername, "smtpUsername", os.Getenv("SMTP_USERNAME"), "SMTP Username to be used.")
-	flag.StringVar(&smtpPassword, "smtpPassword", os.Getenv("SMTP_PASSWORD"), "SMTP Password to be used.")
-
-	flag.StringVar(&emailFrom, "emailFrom", os.Getenv("EMAIL_FROM"), "Where to send the invoice from.")
-	flag.StringVar(&emailTo, "emailTo", os.Getenv("EMAIL_TO"), "Where to send the invoice to.")
-
-	flag.StringVar(&apiLayerApiKey, "apiLayerApiKey", os.Getenv("APILAYER_API_KEY"), "API Key for apilayer.com")
-	flag.StringVar(&apiLayerBaseCurr, "apiLayerBaseCurr", os.Getenv("APILAYER_BASE_CURRENCY"), "Base currency for conversion.")
-	flag.StringVar(&apiLayerNewCurr, "apiLayerNewCurr", os.Getenv("APILAYER_NEW_CURRENCY"), "Currency to be converted to.")
-
-	flag.StringVar(&pdfPrefix, "pdfPrefix", os.Getenv("PDF_PREFIX"), "Prefix of generated PDF.")
-
-	flag.StringVar(&conversionRate, "conversionRate", os.Getenv("CONVERSION_RATE"), "Conversion rate to be applied.")
-
-	flag.Parse()
-}
-
 func main() {
-	getArgs()
+	config := InitFlags()
 
 	r := new(invoicegenerator.Invoice)
 
-	r.From = invFrom
-	r.To = invTo
+	r.From = config.invFrom
+	r.To = config.invTo
 
 	date := utils.GetLastDayCurrentMonth()
 
@@ -90,8 +28,8 @@ func main() {
 
 	yyyymm := time.Now().Format("200601")
 
-	if invNumberPrefix != "" {
-		r.Number = invNumberPrefix + "-" + yyyymm + "-001"
+	if config.invNumberPrefix != "" {
+		r.Number = config.invNumberPrefix + "-" + yyyymm + "-001"
 	} else {
 		r.Number = yyyymm + "-001"
 	}
@@ -101,33 +39,33 @@ func main() {
 	item.Name = utils.GetCurrentMonthName() + " Services"
 	item.Quantity = 1
 
-	amount, err := strconv.ParseFloat(invAmount, 64)
+	amount, err := strconv.ParseFloat(config.invAmount, 64)
 	if err != nil {
 		panic(err)
 	}
 
-	notes := "Service Agreement amount: " + apiLayerBaseCurr + " " + utils.FormatFloatToAmount(amount) + "."
+	notes := "Service Agreement amount: " + config.apiLayerBaseCurr + " " + utils.FormatFloatToAmount(amount) + "."
 
 	var conversion float64
-	if apiLayerBaseCurr != apiLayerNewCurr {
+	if config.apiLayerBaseCurr != config.apiLayerNewCurr {
 
-		if conversionRate == "" {
-			conversion, err = apilayer.GetRate(apiLayerApiKey, apiLayerNewCurr, apiLayerBaseCurr)
+		if config.conversionRate == "" {
+			conversion, err = apilayer.GetRate(config.apiLayerApiKey, config.apiLayerNewCurr, config.apiLayerBaseCurr)
 			if err != nil {
 				panic(err)
 			}
 		} else {
-			conversion, err = strconv.ParseFloat(conversionRate, 64)
+			conversion, err = strconv.ParseFloat(config.conversionRate, 64)
 			if err != nil {
 				panic(err)
 			}
 		}
 		amount = utils.GetConvertedCost(amount, conversion)
 
-		notes += "\nThe payment shall be made in " + apiLayerNewCurr + " based on the " + apiLayerBaseCurr + "-" + apiLayerNewCurr + " currency exchange rate for the last day of the service month.\nFx: " + strconv.FormatFloat(conversion, 'f', -1, 64)
+		notes += "\nThe payment shall be made in " + config.apiLayerNewCurr + " based on the " + config.apiLayerBaseCurr + "-" + config.apiLayerNewCurr + " currency exchange rate for the last day of the service month.\nFx: " + strconv.FormatFloat(conversion, 'f', -1, 64)
 	}
 
-	notes += "\nBank account:  " + invBankAcc
+	notes += "\nBank account:  " + config.invBankAcc
 
 	item.Unit_cost = amount
 
@@ -144,15 +82,15 @@ func main() {
 
 	r.Notes = notes
 
-	if apiLayerNewCurr != "" {
-		r.Currency = apiLayerNewCurr
+	if config.apiLayerNewCurr != "" {
+		r.Currency = config.apiLayerNewCurr
 	} else {
-		r.Currency = apiLayerBaseCurr
+		r.Currency = config.apiLayerBaseCurr
 	}
 
-	filename := "./" + pdfPrefix + "_" + yyyymm + "_" + r.Number + ".pdf"
+	filename := "./" + config.pdfPrefix + "_" + yyyymm + "_" + r.Number + ".pdf"
 
-	err = r.Create(invgenApiKey, filename)
+	err = r.Create(config.invgenApiKey, filename)
 
 	if err != nil {
 		panic(err)
@@ -166,14 +104,14 @@ func main() {
 	// fmt.Println(sender.Send(m))
 
 	email := gomail.Email{
-		From:         emailFrom,
-		To:           emailTo,
-		Subject:      utils.GetCurrentMonthName() + " invoice for: " + companyName,
+		From:         config.emailFrom,
+		To:           config.emailTo,
+		Subject:      utils.GetCurrentMonthName() + " invoice for: " + config.companyName,
 		Body:         "Hello!\n\nSee attached here the invoice for this month of " + utils.GetCurrentMonthName() + ".\n\nCheers!",
-		SmtpServer:   smtpServer,
-		SmtpPort:     smtpPort,
-		SmtpUsername: smtpUsername,
-		SmtpPassword: smtpPassword,
+		SmtpServer:   config.smtpServer,
+		SmtpPort:     config.smtpPort,
+		SmtpUsername: config.smtpUsername,
+		SmtpPassword: config.smtpPassword,
 		Attachment:   filename,
 	}
 
