@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/Stasky745/go-libs/log"
 )
 
 const requestURL = "https://invoice-generator.com"
@@ -53,24 +55,21 @@ type Invoice struct {
 }
 
 type Item struct {
+	Label       string  `json:"label,omitempty"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
-	Quantity    float64 `json:"quantity"`
+	Quantity    int     `json:"quantity"`
 	Unit_cost   float64 `json:"unit_cost"`
 }
 
-func (i *Invoice) Create(apiKey string, fullFilePath string) error {
+func (i *Invoice) CreatePDF(apiKey string, fullFilePath string) {
 	b, err := json.Marshal(*i)
-	if err != nil {
-		return err
-	}
+	log.CheckErr(err, true, "can't marshall the invoice", "invoice", i)
 
 	client := &http.Client{}
 
 	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(b))
-	if err != nil {
-		return err
-	}
+	log.CheckErr(err, true, "can't create new http request", "URL", requestURL)
 
 	// Set headers
 	req.Header.Set("Content-Type", requestType)
@@ -78,22 +77,12 @@ func (i *Invoice) Create(apiKey string, fullFilePath string) error {
 
 	// Send the request
 	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
+	log.CheckErr(err, true, "can't send the request", "request", req)
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return err
-	}
+	log.CheckErr(err, true, "can't check the body of the request", "body", resp.Body)
 
 	err = os.WriteFile(fullFilePath, body, 0644)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	log.CheckErr(err, true, "can't generate PDF file", "path", fullFilePath, "content", body)
 }
