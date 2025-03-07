@@ -10,7 +10,11 @@ const (
 	APILAYER_URL = "https://api.apilayer.com/exchangerates_data/latest?"
 )
 
-func GetRate(apiKey string, symbols string, base string) (float64, error) {
+func GetRate(apiKey string, base string, symbols string) (float64, error) {
+	if symbols == "" || base == "" {
+		return float64(1), nil
+	}
+
 	requestUrl := APILAYER_URL + "symbols=" + symbols + "&base=" + base
 
 	client := &http.Client{}
