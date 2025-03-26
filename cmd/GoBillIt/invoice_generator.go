@@ -113,7 +113,7 @@ func createInvoice() (*invoicegenerator.Invoice, string) {
 	log.CheckErr(err, false, "can't set conversion into koanf", "conversion", conversion)
 
 	// Convert the amounts
-	if 0 != conversion {
+	if conversion != 0 {
 		for i, item := range items {
 			newItem := item
 			newItem.Unit_cost = utils.GetConvertedCost(item.Unit_cost, conversion)

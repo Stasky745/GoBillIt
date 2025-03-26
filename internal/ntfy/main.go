@@ -26,7 +26,7 @@ func appendURL(baseURL, path string) (string, error) {
 	// Parse the base URL
 	parsedURL, err := url.Parse(baseURL)
 	if err != nil {
-		return "", fmt.Errorf("Error parsing URL: %v", err)
+		return "", fmt.Errorf("error parsing URL: %v", err)
 	}
 
 	// Resolve the reference by appending the path
@@ -169,7 +169,7 @@ func (ntfy NtfyClient) SendNotification(priority int, title, message string, tag
 
 	resp, err := http.DefaultClient.Do(req)
 	log.CheckErr(err, false, "can't do request", "request", req, "response", resp)
-	defer resp.Body.Close()
+	defer log.CheckErr(resp.Body.Close(), false, "can't close response body", "response", resp)
 
 	return err
 }
@@ -183,10 +183,10 @@ func (ntfy NtfyClient) listenForResponses() (string, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if log.CheckErr(err, false, "can't listen for response", "URL", ntfy.GetURL) {
-		resp.Body.Close()
+		log.CheckErr(resp.Body.Close(), false, "can't close response body", "response", resp)
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer log.CheckErr(resp.Body.Close(), false, "can't close response body", "response", resp)
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		message := scanner.Text()
@@ -199,10 +199,10 @@ func (ntfy NtfyClient) listenForResponses() (string, error) {
 
 func (ntfy NtfyClient) SendNotificationAndWaitForResponse(priority int, title, message string, tags []string, actions []Action, attach, filename string) (string, error) {
 	if len(actions) == 0 {
-		log.Errorf("Can't send notification and wait for response without actions")
-		return "", fmt.Errorf("Can't send notification and wait for response without actions")
+		log.Errorf("can't send notification and wait for response without actions")
+		return "", fmt.Errorf("can't send notification and wait for response without actions")
 	}
 
-	ntfy.SendNotification(priority, title, message, tags, actions, attach, filename)
+	log.CheckErr(ntfy.SendNotification(priority, title, message, tags, actions, attach, filename), false, "can't send notification")
 	return ntfy.listenForResponses()
 }

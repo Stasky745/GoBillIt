@@ -12,7 +12,7 @@ import (
 
 var client ntfy.NtfyClient
 
-var yesAction, noAction, restartAction, cancelAction, acceptAction, addItemAction ntfy.Action
+var yesAction, noAction, cancelAction, acceptAction, addItemAction ntfy.Action
 
 func createHTTPAction(label, url string, headers map[string]string) ntfy.Action {
 	return ntfy.Action{
@@ -41,7 +41,6 @@ func initializeActions() {
 
 	yesAction = createHTTPAction(ACTION_LABEL_YES, client.PostURL, headers)
 	noAction = createHTTPAction(ACTION_LABEL_NO, client.PostURL, headers)
-	restartAction = createHTTPAction(ACTION_LABEL_RESTART, client.PostURL, headers)
 	cancelAction = createHTTPAction(ACTION_LABEL_CANCEL, client.PostURL, headers)
 	addItemAction = createHTTPAction(ACTION_LABEL_ADD_ITEMS, client.PostURL, headers)
 }
@@ -60,6 +59,7 @@ func ntfyCheck(pdf string) (int, error) {
 		addItemAction,
 		cancelAction,
 	}, "", pdf)
+	log.CheckErr(err, true, "can't send notification")
 
 	switch response {
 	case ACTION_LABEL_YES:
@@ -68,7 +68,8 @@ func ntfyCheck(pdf string) (int, error) {
 		return NTFY_CODE_CANCEL, nil
 	case ACTION_LABEL_ADD_ITEMS:
 		extraItems := getExtras()
-		k.Set(EXTRA_ITEMS, extraItems)
+		err := k.Set(EXTRA_ITEMS, extraItems)
+		log.CheckErr(err, false, "couldn't set extra items to koanf", "items", extraItems)
 	default:
 		log.Panic("received an unwanted response", "question", "New Invoice!", "response", response)
 	}
@@ -151,14 +152,7 @@ func ntfyEmailCheck(e email.Email) (bool, error) {
 	}
 
 	title := "Send Email?"
-	rawBody := `From: %s,
-To: %s,
-CC: %s,
-BCC: %s,
-Subject: %s,
-Body: %s`
-
-	body := fmt.Sprintf(rawBody, e.From, strings.Join(e.To, ";"), strings.Join(e.Cc, ";"), strings.Join(e.Bcc, ";"), e.Subject, e.Body)
+	body := printBody(e)
 
 	res, err := client.SendNotificationAndWaitForResponse(5, title, body, append(EMOJI_EMAIL_CHECK, TAGS...), actions, "", "")
 	if log.CheckErr(err, false, "can't send notification for email check") {
@@ -168,4 +162,31 @@ Body: %s`
 		return true, nil
 	}
 	return false, nil
+}
+
+func printBody(e email.Email) string {
+	var rawBodyParts []string
+	rawBodyParts = append(rawBodyParts, "From: "+e.From)
+
+	if len(e.To) > 0 {
+		rawBodyParts = append(rawBodyParts, "To: "+strings.Join(e.To, ";"))
+	}
+
+	if len(e.Cc) > 0 {
+		rawBodyParts = append(rawBodyParts, "CC: "+strings.Join(e.Cc, ";"))
+	}
+
+	if len(e.Bcc) > 0 {
+		rawBodyParts = append(rawBodyParts, "BCC: "+strings.Join(e.Bcc, ";"))
+	}
+
+	if e.Subject != "" {
+		rawBodyParts = append(rawBodyParts, "Subject: "+e.Subject)
+	}
+
+	if e.Body != "" {
+		rawBodyParts = append(rawBodyParts, "Body: "+e.Body)
+	}
+
+	return strings.Join(rawBodyParts, ",\n")
 }

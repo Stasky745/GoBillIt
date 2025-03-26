@@ -2,4 +2,6 @@
 .env
 
 *.yaml
-*.yml
+!*.example.yaml
+
+!.github/workflows/*.yaml

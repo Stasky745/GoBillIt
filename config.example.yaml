@@ -1,0 +1,63 @@
+---
+inv:
+  apikey: asdf1234
+  to: |
+    Your Client
+    Street, 234. Country A
+  from: |
+    Your Company
+    Route, 343. Country B
+  path: "{{ inv.number }}.pdf"
+  number: "Prefix-{{inv.date[YYYYMM]}}-{{seq[3]}}"
+  conversion:
+    value:
+    min: 0.9243
+  items:
+    path: ./items.example.yaml
+  notes: |
+    Service Agreement amount: USD 4,800.00.
+    The payment shall be made in EUR based on the USD-EUR currency exchange rate for the last day of the service
+    month.
+    Fx: {{ conversion }}
+    Bank account: 1242125452DADF
+
+ntfy:
+  enabled: true
+  server: https://ntfy.domain.com
+  topic: invoice
+  username:
+  password:
+  extras:
+    file: ./ntfy_extras.example.yaml
+
+email:
+  enabled: true
+  from: email@domain.com
+  to: []
+  cc: []
+  bcc:
+    - client@domain2.com
+    - client2@domain3.com
+  subject: "{{ date[m] }} invoice for: Company A"
+  body: |
+    Hello!
+    <br><br>
+    See attached here the invoice for this month of {{ date[m] }}.
+    <br><br>
+    Cheers!
+
+  ntfy:
+    check: true
+
+  smtp:
+    server: smtp.server.com
+    port: 587
+    username: user1
+    password: pass2
+
+apilayer:
+  enabled: true
+  apikey: 23f2ef2fvef
+  currency:
+    base: USD
+    new: EUR
