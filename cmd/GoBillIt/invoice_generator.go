@@ -14,7 +14,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func createInvoice() string {
+func createInvoice() (*invoicegenerator.Invoice, string) {
 	var err error
 
 	r := new(invoicegenerator.Invoice)
@@ -90,15 +90,6 @@ func createInvoice() string {
 	items = append(items, itemsFromFile...)
 	applyTemplateToItems(items)
 
-	// Fetch the extra items if using ntfy
-	if k.Bool("ntfy.enabled") {
-		extraItems := []invoicegenerator.Item{}
-		err = k.Unmarshal(EXTRA_ITEMS, &extraItems)
-		if !log.CheckErr(err, false, "can't unmarshall extra items", "items", items) {
-			items = append(items, extraItems...)
-		}
-	}
-
 	// Conversion if necessary
 	conversion := k.Float64("inv.conversion.value")
 	if k.Bool("apilayer.enabled") &&
@@ -147,9 +138,7 @@ func createInvoice() string {
 		r.Currency = k.String("apilayer.currency.base")
 	}
 
-	r.CreatePDF(k.String("inv.apikey"), filename)
-
-	return filename
+	return r, filename
 }
 
 func applyTemplateToItems(items []invoicegenerator.Item) []invoicegenerator.Item {
