@@ -26,9 +26,9 @@ jobs:
       - name: Build for multiple platforms
         run: |
           mkdir -p dist
-          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ env.VERSION }}" -o dist/GoBillIt-${{ env.VERSION }}-linux-amd64 .
-          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ env.VERSION }}" -o dist/GoBillIt-${{ env.VERSION }}-darwin-amd64 .
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ env.VERSION }}" -o dist/GoBillIt-${{ env.VERSION }}-windows-amd64.exe .
+          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ env.VERSION }}" -o dist/GoBillIt-${{ env.VERSION }}-linux-amd64 ./cmd/GoBillIt
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ env.VERSION }}" -o dist/GoBillIt-${{ env.VERSION }}-darwin-amd64 ./cmd/GoBillIt
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ env.VERSION }}" -o dist/GoBillIt-${{ env.VERSION }}-windows-amd64.exe ./cmd/GoBillIt
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
