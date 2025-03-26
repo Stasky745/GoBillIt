@@ -64,5 +64,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/gbi:latest
-            ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/gbi:${{ github.event.release.tag_name }}
+            ghcr.io/stasky745/gbi:latest
+            ghcr.io/stasky745/gbi:${{ github.event.release.tag_name }}
