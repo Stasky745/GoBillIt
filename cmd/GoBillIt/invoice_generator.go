@@ -123,13 +123,7 @@ func createInvoice() (*invoicegenerator.Invoice, string) {
 
 	notes := template(k.String("inv.notes"), map[string]string{"seq": seq})
 
-	// Remove label from items
-	for _, item := range items {
-		newItem := item
-		newItem.Label = ""
-		r.Items = append(r.Items, newItem)
-	}
-
+	r.Items = items
 	r.Notes = notes
 
 	if k.String("apilayer.currency.new") != "" {
