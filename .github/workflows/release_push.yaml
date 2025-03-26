@@ -37,8 +37,6 @@ jobs:
             dist/GoBillIt-linux-amd64
             dist/GoBillIt-darwin-amd64
             dist/GoBillIt-windows-amd64.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
     name: Build & Push Docker Image
