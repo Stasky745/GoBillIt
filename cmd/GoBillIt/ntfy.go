@@ -12,7 +12,7 @@ import (
 
 var client ntfy.NtfyClient
 
-var yesAction, noAction, restartAction, cancelAction, acceptAction, addItemAction ntfy.Action
+var yesAction, noAction, cancelAction, acceptAction, addItemAction ntfy.Action
 
 func createHTTPAction(label, url string, headers map[string]string) ntfy.Action {
 	return ntfy.Action{
@@ -41,7 +41,6 @@ func initializeActions() {
 
 	yesAction = createHTTPAction(ACTION_LABEL_YES, client.PostURL, headers)
 	noAction = createHTTPAction(ACTION_LABEL_NO, client.PostURL, headers)
-	restartAction = createHTTPAction(ACTION_LABEL_RESTART, client.PostURL, headers)
 	cancelAction = createHTTPAction(ACTION_LABEL_CANCEL, client.PostURL, headers)
 	addItemAction = createHTTPAction(ACTION_LABEL_ADD_ITEMS, client.PostURL, headers)
 }
@@ -60,6 +59,7 @@ func ntfyCheck(pdf string) (int, error) {
 		addItemAction,
 		cancelAction,
 	}, "", pdf)
+	log.CheckErr(err, true, "can't send notification")
 
 	switch response {
 	case ACTION_LABEL_YES:
@@ -68,7 +68,8 @@ func ntfyCheck(pdf string) (int, error) {
 		return NTFY_CODE_CANCEL, nil
 	case ACTION_LABEL_ADD_ITEMS:
 		extraItems := getExtras()
-		k.Set(EXTRA_ITEMS, extraItems)
+		err := k.Set(EXTRA_ITEMS, extraItems)
+		log.CheckErr(err, false, "couldn't set extra items to koanf", "items", extraItems)
 	default:
 		log.Panic("received an unwanted response", "question", "New Invoice!", "response", response)
 	}

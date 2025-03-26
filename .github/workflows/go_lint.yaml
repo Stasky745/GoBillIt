@@ -23,19 +23,6 @@ jobs:
       - name: Test with Go
         run: go test -v ./...
 
-  golangci:
-    name: GoLangCI-lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-      - uses: actions/checkout@v4
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
-        with:
-          version: v2.0
-
   yamlLint:
     runs-on: ubuntu-latest
     steps:

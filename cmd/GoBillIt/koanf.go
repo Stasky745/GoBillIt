@@ -38,7 +38,7 @@ func loadConfig(cliContext *cli.Context) {
 	err = k.Load(env.ProviderWithValue(APP_PREFIX, ".", func(key, value string) (string, interface{}) {
 		// Strip out the MYVAR_ prefix and lowercase and get the key while also replacing
 		// the _ character with . in the key (koanf delimiter).
-		newKey := strings.Replace(strings.ToLower(strings.TrimPrefix(key, APP_PREFIX)), "_", ".", -1)
+		newKey := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(key, APP_PREFIX)), "_", ".")
 
 		if slices.Contains(LIST_ENVS, key) {
 			return newKey, strings.Split(value, ",")
