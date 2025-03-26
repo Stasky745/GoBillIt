@@ -10,77 +10,19 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var version string
+
 var baseFlags = []cli.Flag{
 	// base
 	&cli.StringFlag{
 		Name:  "config",
 		Usage: "config file to load",
 	},
-	// // invoice
-	// &cli.StringFlag{
-	// 	Name:  "inv-apikey",
-	// 	Usage: "invoice-generator.com API key",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-to",
-	// 	Usage: "who the invoice is directed to",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-from",
-	// 	Usage: "who is the invoice from",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-date",
-	// 	Usage: "date the invoice is issued",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-duedate",
-	// 	Usage: "duedate of the invoice",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-dateformat",
-	// 	Usage: "format of the dates shown (see .env.example)",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-path",
-	// 	Usage: "path to generate the invoice (can use templating)",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-number",
-	// 	Usage: "invoice number (can use templating)",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "inv-items-path",
-	// 	Usage: "path to file containing items",
-	// },
-	// &cli.Float64Flag{
-	// 	Name:  "inv-conversion",
-	// 	Usage: "conversion rate",
-	// },
-
-	// // ApiLayer flags
-
-	// &cli.BoolFlag{
-	// 	Name:  "apilayer-enabled",
-	// 	Usage: "use APILayer to manage conversions (overrides 'inv-conversion' if set)",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "apilayer-apikey",
-	// 	Usage: "APILayer API key",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "apilayer-currency-base",
-	// 	Usage: "Base currency",
-	// },
-	// &cli.StringFlag{
-	// 	Name:  "apilayer-currency-new",
-	// 	Usage: "New currency",
-	// },
 }
 
 var app = &cli.App{
 	Name:                 "GoBillIt",
-	Version:              "v1.0.0",
+	Version:              version,
 	EnableBashCompletion: true,
 	Flags:                baseFlags,
 	Action: func(c *cli.Context) error {

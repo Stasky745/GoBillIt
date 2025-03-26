@@ -151,14 +151,7 @@ func ntfyEmailCheck(e email.Email) (bool, error) {
 	}
 
 	title := "Send Email?"
-	rawBody := `From: %s,
-To: %s,
-CC: %s,
-BCC: %s,
-Subject: %s,
-Body: %s`
-
-	body := fmt.Sprintf(rawBody, e.From, strings.Join(e.To, ";"), strings.Join(e.Cc, ";"), strings.Join(e.Bcc, ";"), e.Subject, e.Body)
+	body := printBody(e)
 
 	res, err := client.SendNotificationAndWaitForResponse(5, title, body, append(EMOJI_EMAIL_CHECK, TAGS...), actions, "", "")
 	if log.CheckErr(err, false, "can't send notification for email check") {
@@ -168,4 +161,31 @@ Body: %s`
 		return true, nil
 	}
 	return false, nil
+}
+
+func printBody(e email.Email) string {
+	var rawBodyParts []string
+	rawBodyParts = append(rawBodyParts, "From: "+e.From)
+
+	if len(e.To) > 0 {
+		rawBodyParts = append(rawBodyParts, "To: "+strings.Join(e.To, ";"))
+	}
+
+	if len(e.Cc) > 0 {
+		rawBodyParts = append(rawBodyParts, "CC: "+strings.Join(e.Cc, ";"))
+	}
+
+	if len(e.Bcc) > 0 {
+		rawBodyParts = append(rawBodyParts, "BCC: "+strings.Join(e.Bcc, ";"))
+	}
+
+	if e.Subject != "" {
+		rawBodyParts = append(rawBodyParts, "Subject: "+e.Subject)
+	}
+
+	if e.Body != "" {
+		rawBodyParts = append(rawBodyParts, "Body: "+e.Body)
+	}
+
+	return strings.Join(rawBodyParts, ",\n")
 }
