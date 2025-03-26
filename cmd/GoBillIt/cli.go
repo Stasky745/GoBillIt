@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Stasky745/GoBillIt/internal/email"
+	"github.com/Stasky745/GoBillIt/internal/invoicegenerator"
 	"github.com/Stasky745/GoBillIt/internal/ntfy"
 	"github.com/Stasky745/go-libs/log"
 	"github.com/urfave/cli/v2"
@@ -84,7 +85,8 @@ var app = &cli.App{
 	Flags:                baseFlags,
 	Action: func(c *cli.Context) error {
 		loadConfig(c)
-		filename := createInvoice()
+		invoice, filename := createInvoice()
+		invoice.CreatePDF(k.String("inv.apikey"), filename)
 
 		ntfyEnabled := k.Bool("ntfy.enabled")
 		ntfyCode := -1
@@ -97,7 +99,12 @@ var app = &cli.App{
 
 			switch ntfyCode {
 			case NTFY_CODE_RECREATE:
-				filename = createInvoice()
+				extraItems := []invoicegenerator.Item{}
+				err = k.Unmarshal(EXTRA_ITEMS, &extraItems)
+				if !log.CheckErr(err, false, "can't unmarshall extra items") {
+					invoice.Items = append(invoice.Items, extraItems...)
+				}
+				invoice.CreatePDF(k.String("inv.apikey"), filename)
 			case NTFY_CODE_CANCEL:
 				log.Info("User cancelled operation. Deleting file.")
 				err := os.Remove(filename)
@@ -138,7 +145,10 @@ var app = &cli.App{
 			}
 		}
 
-		client.SendNotification(5, "Hooray!", "We are done!", append(EMOJI_TADA, TAGS...), []ntfy.Action{}, "", "")
+		if ntfyEnabled {
+			client.SendNotification(5, "Hooray!", "We are done!", append(EMOJI_TADA, TAGS...), []ntfy.Action{}, "", "")
+		}
+
 		return nil
 	},
 }

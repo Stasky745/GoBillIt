@@ -62,7 +62,21 @@ type Item struct {
 	Unit_cost   float64 `json:"unit_cost"`
 }
 
+func (i *Invoice) removeLabelsFromItems() {
+	// Remove label from items
+	newItems := []Item{}
+	for _, item := range i.Items {
+		newItem := item
+		newItem.Label = ""
+		newItems = append(newItems, newItem)
+	}
+
+	i.Items = newItems
+}
+
 func (i *Invoice) CreatePDF(apiKey string, fullFilePath string) {
+	i.removeLabelsFromItems()
+
 	b, err := json.Marshal(*i)
 	log.CheckErr(err, true, "can't marshall the invoice", "invoice", i)
 
