@@ -1,0 +1,9 @@
+---
+ntfy:
+  extras:
+    items:
+      - label: onCall
+        name: On-call
+        description: On-call services
+        quantity: 1
+        unit_cost: 123
