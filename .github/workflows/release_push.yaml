@@ -34,9 +34,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/GoBillIt-linux-amd64
-            dist/GoBillIt-darwin-amd64
-            dist/GoBillIt-windows-amd64.exe
+            dist/GoBillIt-${{ env.VERSION }}-linux-amd64
+            dist/GoBillIt-${{ env.VERSION }}-darwin-amd64
+            dist/GoBillIt-${{ env.VERSION }}-windows-amd64.exe
 
   docker:
     name: Build & Push Docker Image
