@@ -1,0 +1,24 @@
+---
+extends: default
+rules:
+  truthy:
+    allowed-values:
+      - "true"
+      - "false"
+  comments:
+    require-starting-space: true
+    ignore-shebangs: true
+    min-spaces-from-content: 1
+  comments-indentation: {}
+  line-length: disable
+  braces:
+    forbid: non-empty
+  brackets:
+    forbid: non-empty
+    level: warning
+  indentation:
+    spaces: 2
+  quoted-strings:
+    quote-type: double
+    level: warning
+    required: false

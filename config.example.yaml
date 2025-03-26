@@ -1,3 +1,4 @@
+---
 inv:
   apikey: asdf1234
   to: |
@@ -24,7 +25,7 @@ ntfy:
   enabled: true
   server: https://ntfy.domain.com
   topic: invoice
-  username: 
+  username:
   password:
   extras:
     file: ./ntfy_extras.example.yaml
@@ -58,4 +59,3 @@ apilayer:
   currency:
     base: USD
     new: EUR
-
