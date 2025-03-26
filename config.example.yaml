@@ -35,7 +35,9 @@ email:
   from: email@domain.com
   to: []
   cc: []
-  bcc: [client@domain2.com]
+  bcc:
+    - client@domain2.com
+    - client2@domain3.com
   subject: "{{ date[m] }} invoice for: Company A"
   body: |
     Hello!
@@ -43,15 +45,15 @@ email:
     See attached here the invoice for this month of {{ date[m] }}.
     <br><br>
     Cheers!
-  
+
   ntfy:
     check: true
 
   smtp:
     server: smtp.server.com
     port: 587
-    username: 
-    password: 
+    username: user1
+    password: pass2
 
 apilayer:
   enabled: true

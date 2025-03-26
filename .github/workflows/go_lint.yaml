@@ -2,12 +2,13 @@
 name: Go
 on:  # yamllint disable-line rule:truthy
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
     paths:
-      - '**/*.go'
-      - 'go.mod'
-      - 'go.sum'
-      - '*.example.yaml'
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - "*.example.yaml"
 
 jobs:
   go:
@@ -39,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install yamllint
         run: pip install yamllint
 

@@ -1,9 +1,10 @@
 ---
 name: Build and Release Go Application
 
-on:
+on: # yamllint disable-line rule:truthy
   release:
-    types: [created]
+    types:
+      - created
 
 jobs:
   build:
@@ -21,7 +22,7 @@ jobs:
 
       - name: Get Release Version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-      
+
       - name: Build for multiple platforms
         run: |
           mkdir -p dist
@@ -38,7 +39,7 @@ jobs:
             dist/GoBillIt-windows-amd64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+
   docker:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
