@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -99,7 +100,7 @@ func createInvoice() string {
 	}
 
 	// Conversion if necessary
-	conversion := k.Float64("inv.conversion")
+	conversion := k.Float64("inv.conversion.value")
 	if k.Bool("apilayer.enabled") &&
 		k.String("apilayer.apikey") != "" &&
 		k.String("apilayer.currency.base") != "" &&
@@ -110,12 +111,15 @@ func createInvoice() string {
 		conv, err := apilayer.GetRate(api, baseCurrency, newCurrency)
 		if !log.CheckErr(err, false, "couldn't get conversion from API Layer, will use default value", "base currency", baseCurrency, "new currency", newCurrency, "default conversion", conversion) {
 			conversion = conv
-
-			// Set new conversion value into koanf
-			err := k.Set("inv.conversion", conversion)
-			log.CheckErr(err, false, "can't set conversion into koanf", "conversion", conversion)
 		}
 	}
+
+	// Set conversion to be the largest between new value and min conversion set
+	conversion = math.Max(conversion, k.Float64("inv.conversion.min"))
+
+	// Set new conversion value into koanf
+	err = k.Set("inv.conversion.value", conversion)
+	log.CheckErr(err, false, "can't set conversion into koanf", "conversion", conversion)
 
 	// Convert the amounts
 	if 0 != conversion {

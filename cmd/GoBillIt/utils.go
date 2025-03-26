@@ -71,8 +71,10 @@ func template(text string, m map[string]string) string {
 				date = time.Now()
 			}
 			return utils.FormatDate(date, aux)
-		case "conversion", "inv.conversion":
-			return strconv.FormatFloat(k.Float64("inv.conversion"), 'f', -1, 64)
+		case "conversion", "inv.conversion", "inv.conversion.value":
+			return strconv.FormatFloat(k.Float64("inv.conversion.value"), 'f', -1, 64)
+		case "inv.conversion.min":
+			return strconv.FormatFloat(k.Float64("inv.conversion.min"), 'f', -1, 64)
 		default:
 			if val, ok := m[key]; ok {
 				return val
