@@ -169,7 +169,7 @@ func (ntfy NtfyClient) SendNotification(priority int, title, message string, tag
 
 	resp, err := http.DefaultClient.Do(req)
 	log.CheckErr(err, false, "can't do request", "request", req, "response", resp)
-	defer log.CheckErr(resp.Body.Close(), false, "can't close response body", "response", resp)
+	defer resp.Body.Close()
 
 	return err
 }
@@ -183,10 +183,9 @@ func (ntfy NtfyClient) listenForResponses() (string, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if log.CheckErr(err, false, "can't listen for response", "URL", ntfy.GetURL) {
-		log.CheckErr(resp.Body.Close(), false, "can't close response body", "response", resp)
 		return "", err
 	}
-	defer log.CheckErr(resp.Body.Close(), false, "can't close response body", "response", resp)
+	defer resp.Body.Close()
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		message := scanner.Text()
@@ -203,6 +202,6 @@ func (ntfy NtfyClient) SendNotificationAndWaitForResponse(priority int, title, m
 		return "", fmt.Errorf("can't send notification and wait for response without actions")
 	}
 
-	log.CheckErr(ntfy.SendNotification(priority, title, message, tags, actions, attach, filename), false, "can't send notification")
+	ntfy.SendNotification(priority, title, message, tags, actions, attach, filename)
 	return ntfy.listenForResponses()
 }
