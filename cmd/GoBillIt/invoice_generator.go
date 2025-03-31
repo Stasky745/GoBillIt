@@ -29,7 +29,12 @@ func createInvoice() (*invoicegenerator.Invoice, string) {
 		log.CheckErr(err, true, "can't parse date", "date", d)
 	}
 
-	dueDate := date.AddDate(0, 1, 0)
+	// To return the correct date in case of last day of month
+	// add to get first day of next month -> add 1 month -> subtract 1 day
+	// dueDate := date.AddDate(0, 0, 1)
+	// dueDate = dueDate.AddDate(0, 1, 0)
+	// dueDate = dueDate.AddDate(0, 0, -1)
+	dueDate := time.Date(date.Year(), date.Month()+2, 0, 0, 0, 0, 0, date.Location())
 
 	if dd := k.String("inv.duedate"); dd != "" {
 		dueDate, err = utils.GetDate(dd)
