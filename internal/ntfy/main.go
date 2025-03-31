@@ -3,6 +3,7 @@ package ntfy
 import (
 	"bufio"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -42,7 +43,7 @@ func Initialize(server, topic, username, password string) (NtfyClient, error) {
 		return NtfyClient{}, err
 	}
 
-	getURL, err := appendURL(postURL, "raw")
+	getURL, err := appendURL(postURL, "json")
 	if log.CheckErr(err, false, "can't create GET URL", "server", server, "topic", topic) {
 		return NtfyClient{}, err
 	}
@@ -89,6 +90,15 @@ type Notification struct {
 	Attach   string   `json:"attach,omitempty"`
 	Filename string   `json:"filename,omitempty"`
 	Actions  []Action `json:"actions,omitempty"`
+}
+
+type NtfyMessage struct {
+	ID      string   `json:"id"`                // Randomly chosen message identifier
+	Time    int64    `json:"time"`              // Unix timestamp of message creation
+	Event   string   `json:"event"`             // Type of event: open, keepalive, message, poll_request
+	Message string   `json:"message,omitempty"` // Message body
+	Title   string   `json:"title,omitempty"`   // Message title
+	Tags    []string `json:"tags,omitempty"`    // List of tags (may map to emojis)
 }
 
 func CreateAction(actionType ActionType, label, url string) (Action, error) {
@@ -188,9 +198,15 @@ func (ntfy NtfyClient) listenForResponses() (string, error) {
 	defer resp.Body.Close()
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
-		message := scanner.Text()
-		if message != "" {
-			return scanner.Text(), nil
+		messageText := scanner.Text()
+		if messageText != "" {
+			var message NtfyMessage
+			err := json.Unmarshal([]byte(messageText), &message)
+			log.Debug("New message received in NTFY", "Message", message)
+			log.CheckErr(err, true, "can't unmarshall ntfy message", "message", messageText)
+			if message.Event == "message" {
+				return message.Message, nil
+			}
 		}
 	}
 	return "", nil
