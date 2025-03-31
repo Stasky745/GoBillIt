@@ -6,6 +6,7 @@ import (
 	"github.com/Stasky745/GoBillIt/internal/email"
 	"github.com/Stasky745/GoBillIt/internal/invoicegenerator"
 	"github.com/Stasky745/GoBillIt/internal/ntfy"
+	"github.com/Stasky745/GoBillIt/internal/utils"
 	"github.com/Stasky745/go-libs/log"
 	"github.com/urfave/cli/v2"
 )
@@ -44,6 +45,12 @@ var app = &cli.App{
 				extraItems := []invoicegenerator.Item{}
 				err = k.Unmarshal(EXTRA_ITEMS, &extraItems)
 				if !log.CheckErr(err, false, "can't unmarshall extra items") {
+					conversion := k.Float64("inv.conversion.value")
+					if conversion > 0 {
+						for i, item := range extraItems {
+							extraItems[i].Unit_cost = utils.GetConvertedCost(item.Unit_cost, conversion)
+						}
+					}
 					invoice.Items = append(invoice.Items, extraItems...)
 				}
 				invoice.CreatePDF(k.String("inv.apikey"), filename)
