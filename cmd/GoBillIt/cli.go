@@ -95,7 +95,7 @@ var app = &cli.App{
 		}
 
 		if ntfyEnabled {
-			client.SendNotification(5, "Hooray!", "We are done!", append(EMOJI_TADA, TAGS...), []ntfy.Action{}, "", "")
+			client.SendNotification(5, "Hooray!", "We are done!!", append(EMOJI_TADA, TAGS...), []ntfy.Action{}, "", "")
 		}
 
 		return nil
