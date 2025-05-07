@@ -100,7 +100,13 @@ func getExtraItem(items []invoicegenerator.Item, item string) invoicegenerator.I
 
 func getExtras() []invoicegenerator.Item {
 	newItems := map[string]invoicegenerator.Item{}
+	extras := []invoicegenerator.Item{}
+	err := k.Unmarshal("ntfy.extras.items", &extras)
+	if log.CheckErr(err, false, "can't unmarshal list of ntfy extra items", "items", k.Strings("ntfy.extras.items")) {
+		extras = []invoicegenerator.Item{}
+	}
 	extraItems := loadExtras(k.String("ntfy.extras.file"))
+	extraItems = append(extraItems, extras...)
 	actions := []ntfy.Action{}
 
 	title := "Add a new item!"
