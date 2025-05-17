@@ -3,6 +3,7 @@ GoBillIt allows you to generate an invoice from a config file using [Invoice-Gen
 
 It also has implemented conversion using [ApiLayer's exchange rate API](https://apilayer.com/marketplace/exchangerates_data-api).
 
+## Table of Contents
 - [GoBillIt](#gobillit)
   - [Usage](#usage)
     - [Docker](#docker)
