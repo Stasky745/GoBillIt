@@ -19,6 +19,10 @@ var baseFlags = []cli.Flag{
 		Name:  "config",
 		Usage: "config file to load",
 	},
+	&cli.StringFlag{
+		Name:  "config_dir",
+		Usage: "directory with config files",
+	},
 }
 
 var app = &cli.App{

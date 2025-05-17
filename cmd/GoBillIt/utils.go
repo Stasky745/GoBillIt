@@ -16,6 +16,9 @@ func setDefaultEnv[T any](env string, def T) T {
 	if v, ok := os.LookupEnv(env); ok {
 		switch any(def).(type) {
 		case string:
+			if v == "" {
+				return def
+			}
 			return any(v).(T)
 		case bool:
 			// Handle the case where the environment variable is a bool
