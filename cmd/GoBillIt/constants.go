@@ -3,6 +3,7 @@ package main
 const (
 	APP_PREFIX      = "GBI_"
 	CONFIG_FILE     = "/etc/gbi/config.yaml"
+	CONFIG_DIR      = "/etc/gbi/conf.d"
 	EXTRA_ITEMS     = "ntfy.extras.items"
 	TEMPLATE_PREFIX = "var."
 

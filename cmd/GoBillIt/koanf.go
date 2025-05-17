@@ -1,6 +1,9 @@
 package main
 
 import (
+	"errors"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"reflect"
 	"slices"
@@ -16,14 +19,46 @@ import (
 )
 
 func loadConfig(cliContext *cli.Context) {
-	var err error
-
 	configFile := cliContext.String("config")
 	if configFile == "" {
 		configFile = setDefaultEnv(string(APP_PREFIX)+"CONFIG", string(CONFIG_FILE))
 	}
 
-	// Load config file.
+	// load base config file
+	loadConfigFile(cliContext, configFile)
+
+	configDir := cliContext.String("config_dir")
+	if configDir == "" {
+		configDir = setDefaultEnv(string(APP_PREFIX)+"CONFIG", string(CONFIG_DIR))
+	}
+
+	_, err := os.Stat(configDir)
+	if err == nil {
+		// configDir exists
+		log.Info("config files directory exists. Processing files", "CONFIG_DIR", CONFIG_DIR)
+		filepath.WalkDir(configDir, func(s string, d fs.DirEntry, e error) error {
+			if e != nil {
+				return e
+			}
+			if slices.Contains([]string{"json", "yaml", "yml"}, filepath.Ext(d.Name())) {
+				loadConfigFile(cliContext, d.Name())
+			}
+			return nil
+		})
+	} else if errors.Is(err, fs.ErrNotExist) {
+		// configDir doesn't exist
+		log.Warn("config files directory does not exist", "CONFIG_DIR", CONFIG_DIR)
+	} else {
+		// other error
+		log.Error("can't check config files directory", "error", err, "CONFIG_DIR", CONFIG_DIR)
+	}
+
+	validateRequiredFields()
+}
+
+func loadConfigFile(cliContext *cli.Context, configFile string) {
+	var err error
+
 	ext := filepath.Ext(configFile)
 
 	switch ext {
@@ -51,8 +86,6 @@ func loadConfig(cliContext *cli.Context) {
 
 	err = k.Load(cliflagv2.Provider(cliContext, "-"), nil)
 	log.CheckErr(err, true, "can't load flags")
-
-	validateRequiredFields()
 }
 
 // validateRequiredFields checks that all required keys are present in the config and validates different types of fields.

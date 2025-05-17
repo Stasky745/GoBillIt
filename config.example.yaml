@@ -13,7 +13,12 @@ inv:
     value:
     min: 0.9243
   items:
-    path: ./items.example.yaml
+    list:
+      - label: main
+        name: "{{date[m]}} Services"
+        description: "1 {{ date[m] }} - {{ date[D] }} {{ date[m] }}"
+        quantity: 1
+        unit_cost: 4800
   notes: |
     Service Agreement amount: USD 4,800.00.
     The payment shall be made in EUR based on the USD-EUR currency exchange rate for the last day of the service
@@ -28,7 +33,12 @@ ntfy:
   username:
   password:
   extras:
-    file: ./ntfy_extras.example.yaml
+    items:
+      - label: onCall
+        name: On-call
+        description:
+        quantity: 1
+        unit_cost: 210
 
 email:
   enabled: true
