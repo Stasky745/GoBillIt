@@ -10,4 +10,4 @@ RUN go build -o GoBillIt ./cmd/GoBillIt/
 FROM alpine:3.21.3
 WORKDIR /GoBillIt
 COPY --from=builder /go/delivery/GoBillIt ./
-CMD ["./GoBillIt", "--config", "/GoBillIt/config.yaml"]
+CMD ["./GoBillIt"]
