@@ -29,7 +29,7 @@ func loadConfig(cliContext *cli.Context) {
 
 	configDir := cliContext.String("config_dir")
 	if configDir == "" {
-		configDir = setDefaultEnv(string(APP_PREFIX)+"CONFIG", string(CONFIG_DIR))
+		configDir = setDefaultEnv(string(APP_PREFIX)+"CONFIG_DIR", string(CONFIG_DIR))
 	}
 
 	_, err := os.Stat(configDir)
